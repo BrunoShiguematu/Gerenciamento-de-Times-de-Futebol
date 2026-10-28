@@ -1,0 +1,159 @@
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: #f4f5f7;
+  color: #1f2430;
+}
+
+.pagina {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.times {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 8px 14px;
+  border: 1px solid #c4c9d4;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #eef0f4;
+}
+
+.pill.ativo,
+button.principal {
+  background: #1f4fd8;
+  border-color: #1f4fd8;
+  color: #ffffff;
+}
+
+button.perigo {
+  color: #b42318;
+  border-color: #f0b4ae;
+}
+
+.sub {
+  color: #5b6272;
+  margin: 12px 0 16px;
+}
+
+.aviso {
+  background: #fdecea;
+  color: #8a1c14;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card span {
+  font-size: 13px;
+  color: #5b6272;
+}
+
+.card strong {
+  font-size: 22px;
+}
+
+.barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.formulario {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.formulario input,
+.formulario select {
+  padding: 8px 10px;
+  border: 1px solid #c4c9d4;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.formulario input[type='number'] {
+  width: 90px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e8ee;
+  font-size: 14px;
+}
+
+th {
+  color: #5b6272;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.acoes {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.acoes button {
+  margin-left: 6px;
+  padding: 4px 10px;
+}
