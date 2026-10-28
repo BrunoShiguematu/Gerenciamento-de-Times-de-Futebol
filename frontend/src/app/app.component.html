@@ -1,0 +1,82 @@
+<main class="pagina">
+  <header class="topo">
+    <h1>Gerenciador de times</h1>
+    <nav class="times">
+      @for (t of times(); track t.id) {
+        <button class="pill" [class.ativo]="t.id === timeAtual()?.id" (click)="selecionar(t)">
+          {{ t.nome }}
+        </button>
+      }
+    </nav>
+  </header>
+
+  @if (mensagem()) {
+    <p class="aviso">{{ mensagem() }}</p>
+  }
+
+  @if (timeAtual(); as time) {
+    <p class="sub">{{ time.estadio }} · {{ time.cidade }} · fundado em {{ time.anoFundacao }}</p>
+
+    @if (estatisticas(); as e) {
+      <section class="cards">
+        <div class="card"><span>Jogadores</span><strong>{{ e.totalJogadores }}</strong></div>
+        <div class="card"><span>Idade média</span><strong>{{ e.idadeMedia }}</strong></div>
+        <div class="card"><span>Gols no total</span><strong>{{ e.totalGols }}</strong></div>
+        <div class="card"><span>Artilheiro</span><strong>{{ e.artilheiro ?? '-' }}</strong></div>
+      </section>
+    }
+
+    <div class="barra">
+      <h2>Elenco</h2>
+      <button (click)="novoJogador()">+ Novo jogador</button>
+    </div>
+
+    @if (formAberto()) {
+      <section class="formulario">
+        <input placeholder="Nome do jogador" [(ngModel)]="form.nome" />
+        <select [(ngModel)]="form.posicao">
+          @for (p of posicoes; track p) {
+            <option [value]="p">{{ p }}</option>
+          }
+        </select>
+        <input type="number" placeholder="Idade" [(ngModel)]="form.idade" />
+        <input type="number" placeholder="Gols" [(ngModel)]="form.gols" />
+        <input type="number" placeholder="Camisa" [(ngModel)]="form.numeroCamisa" />
+        <button class="principal" (click)="salvar()">
+          {{ editandoId() === null ? 'Cadastrar' : 'Salvar alterações' }}
+        </button>
+        <button (click)="cancelar()">Cancelar</button>
+      </section>
+    }
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nº</th>
+          <th>Nome</th>
+          <th>Posição</th>
+          <th>Idade</th>
+          <th>Gols</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (j of jogadores(); track j.id) {
+          <tr>
+            <td>{{ j.numeroCamisa }}</td>
+            <td>{{ j.nome }}</td>
+            <td>{{ j.posicao }}</td>
+            <td>{{ j.idade }}</td>
+            <td>{{ j.gols }}</td>
+            <td class="acoes">
+              <button (click)="editar(j)">Editar</button>
+              <button class="perigo" (click)="excluir(j)">Excluir</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6">Nenhum jogador cadastrado neste time.</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</main>
