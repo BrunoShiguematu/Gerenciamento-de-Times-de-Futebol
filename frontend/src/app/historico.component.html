@@ -1,0 +1,75 @@
+<main class="pagina">
+  <h1 class="titulo">Histórico</h1>
+  @if (mensagem()) {
+    <p class="aviso">{{ mensagem() }}</p>
+  }
+
+  @if (ranking(); as r) {
+    <div class="duas-colunas">
+      <section class="painel">
+        <h2 class="secao">Títulos por time</h2>
+        @for (t of r.titulos; track t.nome) {
+          <div class="barra-linha">
+            <span class="rotulo">{{ t.nome }}</span>
+            <div class="trilho"><div class="enche" [style.width.%]="(t.total / maior(r.titulos)) * 100"></div></div>
+            <b>{{ t.total }}</b>
+          </div>
+        }
+      </section>
+      <section class="painel">
+        <h2 class="secao">Artilharia de todos os campeonatos</h2>
+        @for (a of r.artilharia; track a.nome; let i = $index) {
+          <div class="artilheiro"><span>{{ i + 1 }}º</span><span>{{ a.nome }}</span><b>{{ a.total }}</b></div>
+        } @empty {
+          <p class="nota">Nenhum gol simulado ainda.</p>
+        }
+      </section>
+    </div>
+  }
+
+  <h2 class="secao">Campeonatos</h2>
+  <table>
+    <thead>
+      <tr><th>Nome</th><th>Data</th><th>Campeão</th><th>Final</th><th>Gols</th><th></th></tr>
+    </thead>
+    <tbody>
+      @for (c of lista(); track c.id) {
+        <tr>
+          <td>
+            @if (editandoId() === c.id) {
+              <input class="campo" [(ngModel)]="nomeEditado" (keyup.enter)="salvarNome(c)" />
+            } @else {
+              <strong>{{ c.nome }}</strong>
+            }
+          </td>
+          <td>{{ c.criadoEm | date: 'dd/MM HH:mm' }}</td>
+          <td>
+            @if (c.campeao) {
+              🏆 {{ c.campeao }}
+            } @else {
+              <span class="selo">Em andamento</span>
+            }
+          </td>
+          <td>{{ c.placarFinal ?? '-' }}</td>
+          <td>{{ c.totalGols }}</td>
+          <td class="acoes">
+            <a class="botao" routerLink="/simulador" [queryParams]="{ id: c.id }">Abrir</a>
+            @if (editandoId() === c.id) {
+              <button class="principal" (click)="salvarNome(c)">Salvar</button>
+            } @else {
+              <button (click)="editar(c)">Renomear</button>
+            }
+            @if (excluindoId() === c.id) {
+              <button class="perigo" (click)="excluir(c)">Confirmar exclusão</button>
+              <button (click)="excluindoId.set(null)">Cancelar</button>
+            } @else {
+              <button class="perigo" (click)="excluir(c)">Excluir</button>
+            }
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="6">Nenhum campeonato ainda. Vá ao simulador e role o dado!</td></tr>
+      }
+    </tbody>
+  </table>
+</main>

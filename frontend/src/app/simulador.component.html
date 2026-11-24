@@ -1,0 +1,145 @@
+<main class="pagina">
+  @if (mensagem()) {
+    <p class="aviso">{{ mensagem() }}</p>
+  }
+
+  @if (!detalhe()) {
+    <section class="inicio">
+      <h1>Simulador de campeonato</h1>
+      <p>
+        Todos os times jogam contra todos na fase de grupos (pontos corridos, como no Brasileirão). Os 4
+        primeiros vão para a semifinal (1º × 4º e 2º × 3º) e os outros são eliminados. Empate no mata-mata vai
+        para os pênaltis.
+      </p>
+      <p>Você pode digitar os placares ou sortear: o sorteio usa os gols de cada elenco cadastrado no banco.</p>
+      <div class="botoes">
+        <button class="principal" (click)="iniciar(false)">Iniciar simulação</button>
+        <button (click)="iniciar(true)">Iniciar e simular tudo</button>
+      </div>
+    </section>
+  } @else {
+    @let d = detalhe()!;
+    <section class="faixa">
+      <div>
+        <h1>{{ d.campeonato.nome }}</h1>
+        <small>{{ d.campeonato.criadoEm | date: 'dd/MM/yyyy HH:mm' }} · {{ finalizado() ? 'Finalizado' : 'Em andamento' }}</small>
+      </div>
+      <div class="botoes">
+        <button class="principal" (click)="simularTudo()" [disabled]="ocupado() || finalizado()">Simular tudo</button>
+        <button (click)="iniciar(false)" [disabled]="ocupado()">Novo campeonato</button>
+      </div>
+    </section>
+
+    <div class="duas-colunas">
+      <section>
+        <div class="cabecalho">
+          <h2>Fase de grupos</h2>
+          <button (click)="simularTudo('GRUPO')" [disabled]="ocupado() || !pendente('GRUPO')">Simular fase de grupos</button>
+        </div>
+        @for (p of grupo(); track p.id) {
+          <ng-container *ngTemplateOutlet="cartao; context: { $implicit: p }" />
+        }
+      </section>
+
+      <section>
+        <h2>Classificação</h2>
+        <div class="tabela">
+          <div class="linha cabeca">
+            <span>#</span><span>Time</span><span>P</span><span>J</span><span>V</span><span>E</span><span>D</span><span>SG</span>
+          </div>
+          <div class="corpo" [style.height.px]="d.classificacao.length * 40">
+            @for (l of d.classificacao; track l.timeId; let i = $index) {
+              <div class="linha" [class.eliminado]="i >= 4" [style.top.px]="i * 40">
+                <span>{{ i + 1 }}º</span><span class="time">{{ l.time }}</span>
+                <b>{{ l.pontos }}</b><span>{{ l.jogos }}</span><span>{{ l.vitorias }}</span><span>{{ l.empates }}</span
+                ><span>{{ l.derrotas }}</span><span>{{ l.saldo }}</span>
+              </div>
+            }
+          </div>
+        </div>
+        <p class="nota">Os 4 primeiros vão para a semifinal; os demais (em cinza) são eliminados. Desempate: pontos, saldo de gols, gols pró.</p>
+      </section>
+    </div>
+
+    <div class="cabecalho">
+      <h2>Semifinais</h2>
+      <button (click)="simularTudo('SEMI')" [disabled]="ocupado() || !pendente('SEMI')">Simular semifinais</button>
+    </div>
+    <div class="duas-colunas">
+      @for (o of [1, 2]; track o) {
+        @if (semi(o); as p) {
+          <ng-container *ngTemplateOutlet="cartao; context: { $implicit: p }" />
+        } @else {
+          <div class="jogo vazio">{{ o === 1 ? '1º × 4º do grupo' : '2º × 3º do grupo' }} (termine a fase de grupos)</div>
+        }
+      }
+    </div>
+
+    <div class="cabecalho">
+      <h2>Final</h2>
+      <button (click)="simularTudo('FINAL')" [disabled]="ocupado() || !pendente('FINAL')">Simular final</button>
+    </div>
+    <div class="duas-colunas">
+      @if (final(); as p) {
+        <ng-container *ngTemplateOutlet="cartao; context: { $implicit: p }" />
+      } @else {
+        <div class="jogo vazio">Vencedores das semifinais (termine as semifinais)</div>
+      }
+      <div class="campeao-box">
+        Campeão: <strong>{{ campeao()?.nome ?? '-' }}</strong>
+      </div>
+    </div>
+  }
+</main>
+
+<!-- Cartão de uma partida -->
+<ng-template #cartao let-p>
+  <div class="jogo" [id]="'p' + p.id" [class.rolando]="rolando()[p.id]" [class.recem]="recem() === p.id">
+    <span class="time-nome" [class.venceu]="venceu(p, p.mandante.id)">{{ p.mandante.nome }}</span>
+    <div class="placar">
+      @if (rolando()[p.id]; as r) {
+        <b class="num">{{ r.m }}</b> x <b class="num">{{ r.v }}</b>
+      } @else {
+        <input type="number" min="0" class="num" [(ngModel)]="edicao[p.id].golsMandante" [disabled]="ocupado()" />
+        x
+        <input type="number" min="0" class="num" [(ngModel)]="edicao[p.id].golsVisitante" [disabled]="ocupado()" />
+      }
+    </div>
+    <span class="time-nome direita" [class.venceu]="venceu(p, p.visitante.id)">{{ p.visitante.nome }}</span>
+
+    @if (empateMataMata(p) && !rolando()[p.id]) {
+      <div class="linha-extra">
+        Pênaltis:
+        <input type="number" min="0" class="pen" [(ngModel)]="edicao[p.id].penaltisMandante" [disabled]="ocupado()" />
+        x
+        <input type="number" min="0" class="pen" [(ngModel)]="edicao[p.id].penaltisVisitante" [disabled]="ocupado()" />
+      </div>
+    }
+    <div class="linha-extra autores">
+      <span>{{ autores(p, p.mandante.id) }}</span>
+      <span class="direita">{{ autores(p, p.visitante.id) }}</span>
+    </div>
+    <div class="linha-extra acoes-jogo">
+      @if (rolando()[p.id]) {
+        <small>Sorteando...</small>
+      }
+      @if (alterado(p)) {
+        <button class="principal" (click)="salvar(p)" [disabled]="ocupado()">Salvar placar</button>
+      }
+      <button (click)="simularUm(p)" [disabled]="ocupado()">Sortear</button>
+    </div>
+  </div>
+</ng-template>
+
+@if (mostrarCampeao() && campeao(); as c) {
+  <div class="fundo-modal" (click)="mostrarCampeao.set(false)">
+    <div class="modal">
+      <p>{{ detalhe()?.campeonato?.nome }}</p>
+      <h1>🏆 {{ c.nome }} é campeão!</h1>
+      <div class="botoes">
+        <button class="principal" (click)="iniciar(true); $event.stopPropagation()">Jogar de novo</button>
+        <a routerLink="/historico" class="botao">Ver histórico</a>
+      </div>
+    </div>
+  </div>
+}
