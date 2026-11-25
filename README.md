@@ -4,9 +4,9 @@ Sistema web que começou como um gerenciador de elencos de futebol e virou um **
 
 Trabalho final da disciplina de banco de dados.
 
-- **Davi:** banco de dados (MySQL)
+- **Davi:** Banco de Dados (MySQL)
 - **Diego:** API (Java com Spring Boot)
-- **Bruno:** tela (Angular)
+- **Bruno:** FrontEnd (Angular)
 
 ## O que o sistema faz
 
