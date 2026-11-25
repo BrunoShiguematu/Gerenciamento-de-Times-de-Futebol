@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   standalone: false,
   template: `
     <header class="marca">
-      <a routerLink="/simulador" class="logo">⚽ Copa dos Quatro</a>
+      <a routerLink="/simulador" class="logo">⚽ Copa Simulator</a>
       <nav>
         <a routerLink="/simulador" routerLinkActive="ativo">Simulador</a>
         <a routerLink="/historico" routerLinkActive="ativo">Histórico</a>

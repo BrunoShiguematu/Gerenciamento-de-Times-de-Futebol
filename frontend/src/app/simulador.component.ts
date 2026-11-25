@@ -24,12 +24,16 @@ export class SimuladorComponent implements OnInit {
   ocupado = signal(false);
   mensagem = signal('');
   mostrarCampeao = signal(false);
+  pedindoNome = signal(false);
+  nomeNovo = '';
+  nomeObrigatorio = signal(false);
   edicao: Record<number, PlacarRequest> = {};
 
   grupo = computed(() => this.fase('GRUPO'));
   semis = computed(() => this.fase('SEMI'));
   final = computed(() => this.fase('FINAL')[0] ?? null);
   campeao = computed(() => this.detalhe()?.campeonato.campeao ?? null);
+  metadeGrupo = computed(() => Math.ceil(this.grupo().length / 2));
   finalizado = computed(() => this.detalhe()?.campeonato.status === 'FINALIZADO');
 
   ngOnInit() {
@@ -46,9 +50,25 @@ export class SimuladorComponent implements OnInit {
     });
   }
 
+  // "Novo campeonato": volta para a tela inicial já pedindo o nome
+  async novo() {
+    this.nomeNovo = '';
+    this.nomeObrigatorio.set(false);
+    this.pedindoNome.set(true);
+    await this.router.navigate(['/simulador']);
+  }
+
   async iniciar(simularTudo: boolean) {
+    const nome = this.nomeNovo.trim();
+    if (!nome) {
+      this.nomeObrigatorio.set(true); // campo fica vermelho
+      return;
+    }
     try {
-      const d = await firstValueFrom(this.api.criar(null));
+      const d = await firstValueFrom(this.api.criar(nome));
+      this.mensagem.set('');
+      this.pedindoNome.set(false);
+      this.nomeNovo = '';
       this.aplicar(d);
       this.mostrarCampeao.set(false);
       await this.router.navigate(['/simulador'], { queryParams: { id: d.campeonato.id } });

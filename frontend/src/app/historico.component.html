@@ -18,7 +18,7 @@
       </section>
       <section class="painel">
         <h2 class="secao">Artilharia de todos os campeonatos</h2>
-        @for (a of r.artilharia; track a.nome; let i = $index) {
+        @for (a of r.artilharia.slice(0, 5); track a.nome; let i = $index) {
           <div class="artilheiro"><span>{{ i + 1 }}º</span><span>{{ a.nome }}</span><b>{{ a.total }}</b></div>
         } @empty {
           <p class="nota">Nenhum gol simulado ainda.</p>

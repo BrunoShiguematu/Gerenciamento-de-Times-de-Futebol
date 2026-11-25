@@ -12,10 +12,24 @@
         para os pênaltis.
       </p>
       <p>Você pode digitar os placares ou sortear: o sorteio usa os gols de cada elenco cadastrado no banco.</p>
-      <div class="botoes">
-        <button class="principal" (click)="iniciar(false)">Iniciar simulação</button>
-        <button (click)="iniciar(true)">Iniciar e simular tudo</button>
-      </div>
+      @if (!pedindoNome()) {
+        <div class="botoes">
+          <button class="principal" (click)="pedindoNome.set(true)">Iniciar</button>
+        </div>
+      } @else {
+        <label class="nome-campeonato">
+          Nome do campeonato
+          <input [(ngModel)]="nomeNovo" [class.invalido]="nomeObrigatorio()" (ngModelChange)="nomeObrigatorio.set(false)" placeholder="Ex.: Copa da Turma 2026" maxlength="80" (keyup.enter)="iniciar(false)" />
+          @if (nomeObrigatorio()) {
+            <small class="erro-campo">Este campo é obrigatório</small>
+          }
+        </label>
+        <div class="botoes">
+          <button class="principal" (click)="iniciar(false)">Iniciar simulação</button>
+          <button (click)="iniciar(true)">Iniciar e simular tudo</button>
+          <button (click)="pedindoNome.set(false)">Cancelar</button>
+        </div>
+      }
     </section>
   } @else {
     @let d = detalhe()!;
@@ -26,19 +40,22 @@
       </div>
       <div class="botoes">
         <button class="principal" (click)="simularTudo()" [disabled]="ocupado() || finalizado()">Simular tudo</button>
-        <button (click)="iniciar(false)" [disabled]="ocupado()">Novo campeonato</button>
+        <button (click)="novo()" [disabled]="ocupado()">Novo campeonato</button>
       </div>
     </section>
 
-    <div class="duas-colunas">
+    <div class="duas-colunas grupo-e-tabela">
       <section>
         <div class="cabecalho">
           <h2>Fase de grupos</h2>
           <button (click)="simularTudo('GRUPO')" [disabled]="ocupado() || !pendente('GRUPO')">Simular fase de grupos</button>
         </div>
-        @for (p of grupo(); track p.id) {
-          <ng-container *ngTemplateOutlet="cartao; context: { $implicit: p }" />
-        }
+        <!-- duas colunas de jogos (com 10 jogos: 5 de cada lado) -->
+        <div class="jogos-grupo" [style.grid-template-rows]="'repeat(' + metadeGrupo() + ', auto)'">
+          @for (p of grupo(); track p.id) {
+            <ng-container *ngTemplateOutlet="cartao; context: { $implicit: p }" />
+          }
+        </div>
       </section>
 
       <section>
@@ -49,7 +66,7 @@
           </div>
           <div class="corpo" [style.height.px]="d.classificacao.length * 40">
             @for (l of d.classificacao; track l.timeId; let i = $index) {
-              <div class="linha" [class.eliminado]="i >= 4" [style.top.px]="i * 40">
+              <div class="linha" [class.classificado]="i < 4" [class.eliminado]="i >= 4" [style.top.px]="i * 40">
                 <span>{{ i + 1 }}º</span><span class="time">{{ l.time }}</span>
                 <b>{{ l.pontos }}</b><span>{{ l.jogos }}</span><span>{{ l.vitorias }}</span><span>{{ l.empates }}</span
                 ><span>{{ l.derrotas }}</span><span>{{ l.saldo }}</span>
@@ -57,7 +74,6 @@
             }
           </div>
         </div>
-        <p class="nota">Os 4 primeiros vão para a semifinal; os demais (em cinza) são eliminados. Desempate: pontos, saldo de gols, gols pró.</p>
       </section>
     </div>
 
@@ -65,7 +81,7 @@
       <h2>Semifinais</h2>
       <button (click)="simularTudo('SEMI')" [disabled]="ocupado() || !pendente('SEMI')">Simular semifinais</button>
     </div>
-    <div class="duas-colunas">
+    <div class="mata-mata">
       @for (o of [1, 2]; track o) {
         @if (semi(o); as p) {
           <ng-container *ngTemplateOutlet="cartao; context: { $implicit: p }" />
@@ -79,14 +95,14 @@
       <h2>Final</h2>
       <button (click)="simularTudo('FINAL')" [disabled]="ocupado() || !pendente('FINAL')">Simular final</button>
     </div>
-    <div class="duas-colunas">
+    <div class="mata-mata coluna">
       @if (final(); as p) {
         <ng-container *ngTemplateOutlet="cartao; context: { $implicit: p }" />
       } @else {
         <div class="jogo vazio">Vencedores das semifinais (termine as semifinais)</div>
       }
       <div class="campeao-box">
-        Campeão: <strong>{{ campeao()?.nome ?? '-' }}</strong>
+        🏆 Campeão: <strong>{{ campeao()?.nome ?? '-' }}</strong>
       </div>
     </div>
   }
